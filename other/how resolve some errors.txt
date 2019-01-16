@@ -1,7 +1,0 @@
-Transformation error; return original code
-{ Error: Line 22: Unexpected token =>
-
-for the above istanbul error we resolve by installing other version of istanbul
-npm i istanbul@next --save-dev
-
-if ports are in use we can run command pkill node

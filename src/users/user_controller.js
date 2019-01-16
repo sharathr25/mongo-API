@@ -1,21 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('../../models/user');
+const config = require('../../config/mongoDbUrl');
 
 function hash(data) {
   const saltRounds = 10;
   return bcrypt.hashSync(data, saltRounds);
 }
 
-function comapare(password, user) {
-  if (bcrypt.compareSync(password, user.password)) { return true; }
-  return false;
-}
-
 let mongoDB;
 async function getConnection() {
-  const url = 'mongodb://127.0.0.1:27017/users';
-  const testUrl = `mongodb://127.0.0.1:27017/${process.env.DATABASE}`;
+  const url = `${config.url}users`;
+  const testUrl = `${config.url}${process.env.DATABASE}`;
   mongoDB = typeof process.env.DATABASE !== 'undefined' ? testUrl : url;
   mongoose.connect(mongoDB, { useNewUrlParser: true });
   mongoose.Promise = global.Promise;
@@ -52,16 +48,7 @@ async function findUserFromDb(user) {
   return data;
 }
 
-async function checkPassword(password1, password2) {
-  if (password1 === password2) {
-    return false;
-  }
-  return true;
-}
-
 module.exports = {
   addUser: addUsertoDb,
   findUser: findUserFromDb,
-  checkPasswordMismatch: checkPassword,
-  comparePassword: comapare,
 };

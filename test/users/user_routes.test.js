@@ -1,9 +1,10 @@
 const request = require('supertest');
-// eslint-disable-next-line prefer-destructuring
-const expect = require('chai').expect;
+const { expect } = require('chai');
 
 describe('loading express', () => {
   let server;
+  process.env.PORT = 6000;
+  process.env.DATABASE = 'test';
   beforeEach(() => {
     // eslint-disable-next-line global-require
     server = require('../../server.js');
@@ -11,106 +12,66 @@ describe('loading express', () => {
   afterEach(() => {
     server.close();
   });
-  it('responds to /signup', (done) => {
+  it('responds to /api/signup', (done) => {
     request(server)
-      .get('/signup')
+      .post('/api/signup')
+      .send({
+        username: 'abcd',
+        email: 'abcd@gmail.com',
+        password: '1234',
+        password1: '1234',
+      })
+      .set('Content-Type', 'application/json')
       .expect(200)
       .end((err, res) => {
-        expect(res.text).to.have.string('Username:');
+        expect(res.text).to.have.string('user added sucessfully');
         console.log('----------------------------------------------');
         done();
       });
   });
-  it('responds to /signup', (done) => {
+  it('responds to /api/signup', (done) => {
     request(server)
-      .post('/signup')
-      .send('username=abcd')
-      .send('email=abcd@gmail.com')
-      .send('password=1234')
-      .send('password1=1234')
+      .post('/api/signup')
+      .send({
+        username: 'abcd',
+        email: 'abcd@gmail.com',
+        password: '1234',
+        password1: '1234',
+      })
+      .set('Content-Type', 'application/json')
       .expect(200)
       .end((err, res) => {
-        expect(res.text).to.have.string('your already registered');
+        expect(res.text).to.have.string('user already in db');
         console.log('----------------------------------------------');
         done();
       });
   });
-  it('responds to /login', (done) => {
+  it('responds to /api/login', (done) => {
     request(server)
-      .post('/login')
-      .send('email=abcd@gmail.com')
-      .send('password=1234')
+      .post('/api/login')
+      .send({
+        email: 'abcd@gmail.com',
+        password: '1234',
+      })
+      .set('Content-Type', 'application/json')
       .expect(200)
       .end((err, res) => {
-        expect(res.text).to.have.string('Welcome');
-        console.log('----------------------------------------------');
-        done();
-      });
-  });
-  it('responds to /login with valid email and password', (done) => {
-    request(server)
-      .post('/login')
-      .send('email=abcd@gmail.com')
-      .send('password=1234')
-      .expect(200)
-      .end((err, res) => {
-        expect(res.text).to.have.string('Welcome');
+        expect(res.text).to.have.string('"username":"abcd"');
         console.log('----------------------------------------------');
         done();
       });
   });
   it('responds to /login with invalid email', (done) => {
     request(server)
-      .post('/login')
-      .send('email=a@gmail.com')
-      .send('password=1234')
+      .post('/api/login')
+      .send({
+        email: 'a@gmail.com',
+        password: '1234',
+      })
+      .set('Content-Type', 'application/json')
       .expect(401)
       .end((err, res) => {
-        expect(res.text).to.have.string('Your not in our db');
-        console.log('----------------------------------------------');
-        done();
-      });
-  });
-  it('responds to /login with valid email and invalid password', (done) => {
-    request(server)
-      .post('/login')
-      .send('email=abcd@gmail.com')
-      .send('password=3467')
-      .expect(401)
-      .end((err, res) => {
-        expect(res.text).to.have.string('incorrect password');
-        console.log('----------------------------------------------');
-        done();
-      });
-  });
-  it('responds to /login with empty email', (done) => {
-    request(server)
-      .post('/login')
-      .send('email=')
-      .send('password=')
-      .expect(200)
-      .end((err, res) => {
-        expect(res.text).to.have.string('email not correct');
-        console.log('----------------------------------------------');
-        done();
-      });
-  });
-  it('responds to /login', (done) => {
-    request(server)
-      .get('/login')
-      .expect(200)
-      .end((err, res) => {
-        expect(res.text).to.have.string('Email:');
-        console.log('----------------------------------------------');
-        done();
-      });
-  });
-  it('responds to /logout', (done) => {
-    request(server)
-      .get('/logout')
-      .expect(200)
-      .end((err, res) => {
-        expect(res.text).to.have.string('WEBBOOK');
+        expect(res.text).to.have.string('"message":"invalid user"');
         console.log('----------------------------------------------');
         done();
       });
