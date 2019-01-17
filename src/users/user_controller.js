@@ -10,7 +10,10 @@ function hash(data) {
 
 let mongoDB;
 async function getConnection() {
-  const url = `${config.url}users`;
+  let url = `${config.devUrl}`;
+  if (process.env.NODE_ENV === 'production') {
+    url = `${config.productionUrl}`;
+  }
   const testUrl = `${config.url}${process.env.DATABASE}`;
   mongoDB = typeof process.env.DATABASE !== 'undefined' ? testUrl : url;
   mongoose.connect(mongoDB, { useNewUrlParser: true });
@@ -42,6 +45,7 @@ async function findUserFromDb(user) {
   try {
     data = await User.find({ email: `${user.email}` });
   } catch (err) {
+    console.log(err);
     console.log('some error occurred');
   }
   await mongoose.connection.close();
